@@ -45,14 +45,24 @@ PRODUCT_IMAGE_MAP = {
 import mysql.connector
 from mysql.connector import Error as MySQLError
 
+
 MYSQL_CONFIG = {
     'host': os.getenv('MYSQL_HOST', 'localhost'),
     'port': int(os.getenv('MYSQL_PORT', '3306')),
-    'user': os.getenv('MYSQL_USER', 'root'),
-    'password': os.getenv('MYSQL_PASSWORD', 'College@2026'),
-    'database': os.getenv('MYSQL_DATABASE', 'brovault_db'),
+    'user': os.getenv('MYSQL_USER', 'avnadmin'),
+    'password': os.getenv('MYSQL_PASSWORD', ''),
+    'database': os.getenv('MYSQL_DATABASE', 'defaultdb'),
     'autocommit': False,
 }
+
+_ssl_ca = os.getenv('MYSQL_SSL_CA', '/etc/secrets/ca.pem')
+if os.path.isfile(_ssl_ca):
+    MYSQL_CONFIG.update({
+        'ssl_ca': _ssl_ca,
+        'ssl_verify_cert': True,
+        'ssl_verify_identity': True,
+    })
+
 
 def _translate_sql(sql):
     # Keep the existing route SQL compatible with the supplied MySQL schema.
