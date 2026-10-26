@@ -1,0 +1,98 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="intro">
+    <small class="eyebrow">A LITTLE JOY IS ON ITS WAY</small>
+    <h1>Your gift <em>basket.</em></h1>
+</section>
+
+{% if items %}
+
+<div class="cart-layout">
+
+    <div>
+        {% for i in items %}
+
+        <article class="cart-item">
+
+            <img
+    src="{{ url_for('static', filename=i.image) }}"
+    alt="{{ i.name }}"
+    style="width:100px; height:100px; object-fit:contain;"
+>
+
+            <div>
+                <h3>{{ i.name }}</h3>
+                <b>{{ i.price|money }}</b>
+
+                <form
+                    method="post"
+                    action="{{ url_for('cart_update', i=i.id) }}"
+                    class="qty"
+                >
+                    <input
+                        name="quantity"
+                        type="number"
+                        min="0"
+                        max="{{ i.stock }}"
+                        value="{{ i.quantity }}"
+                    >
+                    <button class="text" type="submit">Update</button>
+                </form>
+            </div>
+
+            <div class="right">
+                <b>{{ i.line|money }}</b>
+
+                <form
+                    method="post"
+                    action="{{ url_for('cart_remove', i=i.id) }}"
+                >
+                    <button class="text danger" type="submit">Remove</button>
+                </form>
+            </div>
+
+        </article>
+
+        {% endfor %}
+    </div>
+
+    <aside class="summary">
+        <h2>Order summary</h2>
+
+        <p>
+            <span>Subtotal</span>
+            <b>{{ subtotal|money }}</b>
+        </p>
+
+        <p>
+            <span>Delivery</span>
+            <b>{{ 'Free' if subtotal >= 1500 else '₹79' }}</b>
+        </p>
+
+        <small>Free delivery on orders over ₹1,500.</small>
+
+        <a class="btn full" href="{{ url_for('checkout') }}">
+            Continue to checkout →
+        </a>
+
+        <a class="text" href="{{ url_for('shop') }}">
+            Continue shopping
+        </a>
+    </aside>
+
+</div>
+
+{% else %}
+
+<div class="empty">
+    <span>🛍️</span>
+    <h2>Your basket is waiting for something lovely.</h2>
+    <a class="btn" href="{{ url_for('shop') }}">Explore gifts</a>
+</div>
+
+{% endif %}
+
+{% endblock %}

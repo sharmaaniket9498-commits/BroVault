@@ -1,0 +1,123 @@
+
+{% extends 'base.html' %}
+
+{% block title %}BROVAULT — Gifts for Him{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+    <div class="hero-content">
+        <span class="eyebrow">A LITTLE SOMETHING, A LOT OF LOVE</span>
+
+        <h1>
+            Make an impression<br>
+            <em>that lasts.</em>
+        </h1>
+
+        <p>
+            Considered accessories and gift-worthy essentials
+            for the men who matter.
+        </p>
+
+        <div class="hero-actions">
+            <a class="btn" href="{{ url_for('shop') }}">
+                Explore the Vault →
+            </a>
+
+        </div>
+
+        <div class="trust">
+            ♡ Thoughtfully curated &nbsp; ✦ Beautifully wrapped
+        </div>
+    </div>
+
+   <div class="hero-art">
+    <img
+        src="{{ url_for('static', filename='uploads/birthday_box.png') }}"
+        alt="BroVault Gift Box"
+        style="display:block; width:100%; height:100%; object-fit:contain;"
+    >
+    <span>
+        Small gifts<br>
+        <b>Big emotions ♥</b>
+    </span>
+</div>
+</section>
+
+
+<section class="section">
+    <div class="heading">
+        <div>
+            <small class="eyebrow">FIND YOUR FEELING</small>
+            <h2>Shop by category</h2>
+        </div>
+
+        <a href="{{ url_for('shop') }}">View all gifts ↗</a>
+    </div>
+
+    <div class="categories">
+        {% for c in cats %}
+            <a class="category"
+               href="{{ url_for('shop', category=c.id) }}">
+
+                <span>
+                    {{ ['⌚','▰','◈','◉','◇','⌁','✦','▣','□','✧'][loop.index0 % 10] }}
+                </span>
+
+                <b>{{ c.name }}</b>
+            </a>
+        {% endfor %}
+    </div>
+</section>
+
+
+<section class="section">
+    <div class="heading">
+        <div>
+            <small class="eyebrow">LOVED BY EVERYONE</small>
+            <h2>Little treasures</h2>
+        </div>
+
+        <a href="{{ url_for('shop') }}">Shop all products ↗</a>
+    </div>
+
+    <div class="products">
+        {% for p in products %}
+            {% include 'product_card.html' %}
+        {% else %}
+            <div class="empty">
+                <h2>New treasures coming soon</h2>
+                <p>We're preparing something special for you.</p>
+                <a class="btn" href="{{ url_for('shop') }}">
+                    Explore the Vault
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+
+<section class="banner">
+    <div>
+        <small class="eyebrow">MAKE IT THEIRS</small>
+
+        <h2>
+            Small gifts.<br>
+            <em>Big impression.</em>
+        </h2>
+
+        <p>
+            Find his signature style, from daily essentials
+            to occasion-ready gift boxes.
+        </p>
+
+        <a class="btn"
+           href="{{ url_for('personalize') if me else url_for('login') }}">
+            Personalize a Gift →
+        </a>
+    </div>
+
+    <span class="banner-mark">✦ BROVAULT ✦</span>
+</section>
+
+{% endblock %}

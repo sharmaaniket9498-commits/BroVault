@@ -1,0 +1,78 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="intro">
+    <small class="eyebrow">A LITTLE LOVE, A SIMPLE SCAN</small>
+    <h1>Scan &amp; <em>pay.</em></h1>
+    <p>
+        Order #GFT{{ '%04d'|format(o.id) }}
+        · Please confirm payment only after paying in your UPI app.
+    </p>
+</section>
+
+<div class="cart-layout payment-layout">
+
+    <section class="panel qr-panel">
+
+        <h2>Scan this QR with any UPI app</h2>
+
+        <!-- Uploaded QR image -->
+        <img
+            class="payment-qr"
+            src="{{ url_for('static', filename='uploads/demo_qr.png') }}"
+            alt="UPI Payment QR Code"
+            style="display:block; width:280px; max-width:100%; height:auto; margin:20px auto;"
+        >
+
+        <p class="muted">
+            Pay exactly <strong>{{ o.total|money }}</strong>.
+        </p>
+
+        <p class="muted">
+            Open your UPI app and scan the QR code above.
+            Check the recipient details and amount before completing payment.
+        </p>
+
+        <p class="muted">
+            After making the payment, click below to submit your order
+            for manual verification.
+        </p>
+
+        <form method="post">
+            <button class="btn full" type="submit">
+                I Have Paid — Submit for Verification
+            </button>
+        </form>
+
+    </section>
+
+    <aside class="summary">
+
+        <h2>Order summary</h2>
+
+        <p>
+            <span>Order</span>
+            <b>#GFT{{ '%04d'|format(o.id) }}</b>
+        </p>
+
+        <p>
+            <span>Status</span>
+            <b>{{ o.status }}</b>
+        </p>
+
+        <p class="total">
+            <span>Amount</span>
+            <b>{{ o.total|money }}</b>
+        </p>
+
+        <a class="btn secondary full" href="{{ url_for('orders') }}">
+            Back to My Orders
+        </a>
+
+    </aside>
+
+</div>
+
+{% endblock %}

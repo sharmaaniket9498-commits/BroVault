@@ -1,0 +1,271 @@
+
+{% extends 'base.html' %}
+
+{% block title %}BroVault | Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<section class="dashhero">
+    <div>
+        <small>YOUR LITTLE EMPIRE OF JOY</small>
+        <h1>Welcome back,<br><em>Admin!</em></h1>
+        <p>Here's what's happening with your gift store today.</p>
+        <p>♡ Make every occasion special</p>
+    </div>
+    <div class="dashart">
+        <img
+            src="{{ url_for('static', filename='images/products/rose_bouquet.svg') }}"
+            alt="Gift bouquet"
+            onerror="this.style.display='none'">
+    </div>
+</section>
+
+<section class="stats">
+    <div class="stat">
+        <small>Total Orders</small>
+        <strong>{{ stats.orders }}</strong>
+    </div>
+    <div class="stat">
+        <small>Total Sales</small>
+        <strong>{{ stats.sales|money }}</strong>
+    </div>
+    <div class="stat">
+        <small>Total Customers</small>
+        <strong>{{ stats.customers }}</strong>
+    </div>
+    <div class="stat">
+        <small>Low Stock Items</small>
+        <strong>{{ stats.low }}</strong>
+    </div>
+</section>
+
+<section class="dashgrid">
+
+    <div class="panel">
+        <h2>Sales Overview</h2>
+        <div class="chart">
+            <canvas id="daily"></canvas>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Best-selling Categories</h2>
+        <div class="chart">
+            <canvas id="cat"></canvas>
+        </div>
+    </div>
+
+    <div class="panel span2">
+        <h2>Recent Orders</h2>
+        <div style="overflow-x:auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in recent %}
+                    <tr>
+                        <td>#{{ o.id }}</td>
+                        <td>{{ o.customer }}</td>
+                        <td>{{ o.status }}</td>
+                        <td>{{ o.total|money }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">No orders yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel span2">
+        <h2>Products</h2>
+        <div class="mini-products">
+            {% for p in products %}
+            {% set img = (p.image or '')|replace('\\', '/') %}
+
+            {% if img.startswith('static/') %}
+                {% set img = img[7:] %}
+            {% endif %}
+
+            {% if img.startswith('uploads/') or img.startswith('images/') %}
+                {% set img = img %}
+            {% elif img %}
+                {% set img = 'uploads/' + img %}
+            {% else %}
+                {% set img = 'images/products/rose_bouquet.svg' %}
+            {% endif %}
+
+          
+<div class="mini-product">
+    <img
+        src="{{ url_for('static', filename=img) }}"
+        alt="{{ p.name }}"
+        loading="lazy"
+        onerror="this.onerror=null; this.src='/static/images/products/rose_bouquet.svg';"
+    >
+
+    <b>{{ p.name }}</b>
+    <strong>{{ p.price|money }}</strong>
+    <small>Stock: {{ p.stock }}</small>
+</div>
+
+            {% else %}
+            <p>No products found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Monthly Sales</h2>
+        <div class="chart">
+            <canvas id="monthly"></canvas>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Quick Actions</h2>
+        <div class="quick">
+            <a href="/admin/products">Manage Products →</a>
+            <a href="/admin/orders">Manage Orders →</a>
+            <a href="/admin/categories">Manage Categories →</a>
+            <a href="/admin/customers">View Customers →</a>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Low Stock Alert</h2>
+        {% for p in low %}
+        <p>
+            {{ p.name }} —
+            <strong>{{ p.stock }} left</strong>
+        </p>
+        {% else %}
+        <p>No low-stock products.</p>
+        {% endfor %}
+    </div>
+
+</section>
+
+<!-- Pass Python/Jinja data to JavaScript through HTML attributes -->
+<div id="dashboard-data"
+     hidden
+     data-categories="{{ cats | tojson | forceescape }}"
+     data-monthly="{{ monthly | tojson | forceescape }}">
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const dataElement = document.getElementById('dashboard-data');
+
+    if (!dataElement) return;
+
+    let categoryData = [];
+    let monthlySalesData = [];
+
+    try {
+        categoryData = JSON.parse(dataElement.dataset.categories || '[]');
+        monthlySalesData = JSON.parse(dataElement.dataset.monthly || '[]');
+    } catch (error) {
+        console.error('Could not read dashboard chart data:', error);
+        return;
+    }
+
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded. Check templates/base.html.');
+        return;
+    }
+
+    // Sales overview
+    const dailyCanvas = document.getElementById('daily');
+
+    if (dailyCanvas) {
+        new Chart(dailyCanvas, {
+            type: 'line',
+            data: {
+                labels: monthlySalesData.map(item => item.month),
+                datasets: [{
+                    label: 'Sales',
+                    data: monthlySalesData.map(item => Number(item.sales) || 0),
+                    borderColor: '#ed748b',
+                    backgroundColor: 'rgba(237, 116, 139, 0.18)',
+                    fill: true,
+                    tension: 0.35
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    // Category chart
+    const categoryCanvas = document.getElementById('cat');
+
+    if (categoryCanvas) {
+        new Chart(categoryCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: categoryData.map(item => item.name),
+                datasets: [{
+                    data: categoryData.map(item => Number(item.sales) || 0),
+                    backgroundColor: [
+                        '#ee7189',
+                        '#f7a6ae',
+                        '#f5c1b0',
+                        '#d5a5d7',
+                        '#ead9d6',
+                        '#f4d69d',
+                        '#f8dce1',
+                        '#e8a4b2'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    // Monthly sales chart
+    const monthlyCanvas = document.getElementById('monthly');
+
+    if (monthlyCanvas) {
+        new Chart(monthlyCanvas, {
+            type: 'bar',
+            data: {
+                labels: monthlySalesData.map(item => item.month),
+                datasets: [{
+                    label: 'Sales',
+                    data: monthlySalesData.map(item => Number(item.sales) || 0),
+                    backgroundColor: '#f6aab7',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,3 @@
+{% extends 'base.html' %}{% block content %}
+<section class="payment-confirmation panel"><div class="confirm-mark">✓</div><small class="eyebrow">THANK YOU FOR SHOPPING WITH BROVAULT</small><h1>Payment <em>submitted.</em></h1><p>Your payment submission for order <strong>#GFT{{'%04d'|format(o.id)}}</strong> has been recorded. It is <strong>not marked as paid yet</strong> because this website cannot verify UPI transactions automatically.</p><div class="confirm-amount">{{o.total|money}}</div><p>Payment status: <strong>Awaiting manual verification</strong></p><div class="confirm-actions"><a class="btn" href="{{url_for('orders')}}">View My Orders</a><a class="btn secondary" href="{{url_for('shop')}}">Back to Shop</a></div></section>
+{% endblock %}

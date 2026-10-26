@@ -1,0 +1,67 @@
+
+<article class="product-card">
+
+    <a href="{{ url_for('product', i=p.id) }}" class="product-image-link">
+        <img
+    src="{{ url_for('static', filename='uploads/' + {
+        'watch_midnight.svg': 'watch1.png',
+        'watch_champagne.svg': 'watch1.png',
+        'watch_urban.svg': 'watch1.png',
+        'wallet_tan.svg': 'wallet1.png',
+        'wallet_mocha.svg': 'wallet1.png',
+        'cardholder_black.svg': 'wallet1.png',
+        'perfume_amber.svg': 'perfume1.png',
+        'perfume_citrus.svg': 'perfume1.png',
+        'perfume_noir.svg': 'perfume1.png',
+        'sunglasses_aviator.svg': 'sunglasses1.png',
+        'sunglasses_black.svg': 'sunglasses1.png',
+        'bracelet_steel.svg': 'bracelet1.png',
+        'bracelet_leather.svg': 'bracelet1.png',
+        'ring_onyx.svg': 'bracelet1.png',
+        'keychain_initial.svg': 'keychain1.png',
+        'keyorganiser.svg': 'keychain1.png',
+        'grooming_kit.svg': 'perfume1.png',
+        'grooming_pouch.svg': 'giftbox1.png',
+        'wallet_personal.svg': 'wallet1.png',
+        'personal_box.svg': 'giftbox1.png',
+        'combo_gentleman.svg': 'giftbox1.png',
+        'combo_watch_wallet.svg': 'giftbox1.png',
+        'combo_scent.svg': 'giftbox1.png',
+        'birthday_luxe.svg': 'giftbox1.png',
+        'anniversary_set.svg': 'giftbox1.png',
+        'desk_set.svg': 'pen1.png'
+    }.get(p.image, p.image.split('/')[-1])) }}"
+    alt="{{ p.name }}"
+    class="product-image"
+    loading="lazy"
+>
+    <small class="eyebrow">{{ p.category or 'BROVAULT PICK' }}</small>
+
+    <h3>
+        <a href="{{ url_for('product', i=p.id) }}">{{ p.name }}</a>
+    </h3>
+
+    <p>{{ p.description|truncate(90) }}</p>
+
+    <strong>{{ p.price|money }}</strong>
+
+    {% if p.original and p.original > p.price %}
+        <del class="muted">{{ p.original|money }}</del>
+    {% endif %}
+
+    <div class="product-actions">
+        <form method="post" action="{{ url_for('add_cart', i=p.id) }}">
+            <input type="hidden" name="quantity" value="1">
+            <button class="btn small" {% if p.stock < 1 %}disabled{% endif %}>
+                Add to cart
+            </button>
+        </form>
+
+        <form method="post" action="{{ url_for('wishlist_toggle', i=p.id) }}">
+            <button class="btn small secondary" title="Save to wishlist">
+                ♡
+            </button>
+        </form>
+    </div>
+
+</article>

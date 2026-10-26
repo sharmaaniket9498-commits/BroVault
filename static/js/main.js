@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',()=>{let b=document.getElementById('mobile'),n=document.getElementById('nav');if(b&&n)b.onclick=()=>n.classList.toggle('open');document.querySelectorAll('[data-show]').forEach(x=>x.onclick=()=>{let i=document.getElementById(x.dataset.show);i.type=i.type==='password'?'text':'password';x.textContent=i.type==='password'?'Show':'Hide'})});

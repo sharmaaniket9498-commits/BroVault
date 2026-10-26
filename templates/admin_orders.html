@@ -1,0 +1,91 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="intro">
+    <small class="eyebrow">EVERY ORDER, HANDLED WITH CARE</small>
+    <h1>Order <em>management.</em></h1>
+</section>
+
+<section class="panel">
+    <div class="scroll">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Payment</th>
+                    <th>Total</th>
+                    <th>Status / Update</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for o in orders %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('order_detail', i=o.id) }}">
+                            #GFT{{ '%04d'|format(o.id) }}
+                        </a>
+                    </td>
+
+                    <td>
+                        {{ o.customer }}
+                        <small>{{ o.email }}</small>
+                    </td>
+
+                    <td>{{ o.created }}</td>
+
+                    <td>{{ o.payment }}</td>
+
+                    <td>{{ o.total|money }}</td>
+
+                    <td>
+                        <form method="post"
+                              class="inline"
+                              action="{{ url_for('admin_orders') }}">
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="{{ o.id }}">
+
+                            <select name="status">
+                                {% for s in [
+                                    'Pending',
+                                    'Confirmed',
+                                    'Processing',
+                                    'Shipped',
+                                    'Delivered',
+                                    'Cancelled'
+                                ] %}
+                                <option value="{{ s }}"
+                                    {% if s == o.status %}selected{% endif %}>
+                                    {{ s }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <button class="btn small" type="submit">
+                                Save
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="6">
+                        Orders appear here after checkout.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</section>
+
+{% endblock %}

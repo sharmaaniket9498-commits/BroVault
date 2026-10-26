@@ -1,0 +1,180 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+
+<section class="intro">
+    <small class="eyebrow">YOUR GIFT COLLECTION</small>
+    <h1>Products & <em>inventory.</em></h1>
+    <p>Add, edit, archive gifts and upload your own product photos.</p>
+</section>
+
+<!-- ADD NEW PRODUCT -->
+<section class="panel" id="add">
+    <div class="heading">
+        <h2>Add a new product</h2>
+    </div>
+
+    <form method="post"
+          enctype="multipart/form-data"
+          class="formgrid">
+
+        <label>
+            Product name
+            <input name="name" required>
+        </label>
+
+        <label>
+            Category
+            <select name="category_id">
+                {% for c in cats %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            Price (₹)
+            <input type="number" name="price" min="1" step=".01" required>
+        </label>
+
+        <label>
+            Original price
+            <input type="number" name="original" min="0" step=".01">
+        </label>
+
+        <label>
+            Stock
+            <input type="number" name="stock" min="0" value="10" required>
+        </label>
+
+        <label>
+            Photo upload
+            <input type="file"
+                   name="image"
+                   accept=".png,.jpg,.jpeg,.webp,.gif">
+        </label>
+
+        <label class="wide">
+            Description
+            <textarea name="description"></textarea>
+        </label>
+
+        <label class="check">
+            <input type="checkbox" name="featured">
+            Feature on home page
+        </label>
+
+        <button class="btn">＋ Add product</button>
+    </form>
+</section>
+
+
+<!-- MANAGE PRODUCTS -->
+<section class="panel">
+
+    <div class="heading">
+        <h2>Manage products</h2>
+        <span>{{ products|length }} products</span>
+    </div>
+
+    <div class="scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>
+                      
+<div class="tableproduct">
+    <img
+        src="{{ url_for('static', filename=p.image) }}"
+        alt="{{ p.name }}"
+        width="80"
+        height="80"
+        style="object-fit: contain;"
+    >
+    <b>{{ p.name }}</b>
+</div>
+
+
+                    </td>
+
+                    <td>{{ p.category }}</td>
+                    <td>{{ p.price|money }}</td>
+                    <td>{{ p.stock }}</td>
+
+                    <td>
+                        <details>
+                            <summary>Edit</summary>
+
+                            <form method="post"
+                                  action="{{ url_for('edit_product', i=p.id) }}"
+                                  class="mini-edit">
+
+                                <input name="name"
+                                       value="{{ p.name }}"
+                                       required>
+
+                                <select name="category_id">
+                                    {% for c in cats %}
+                                    <option value="{{ c.id }}"
+                                        {% if c.id == p.category_id %}selected{% endif %}>
+                                        {{ c.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+
+                                <input name="price"
+                                       type="number"
+                                       step=".01"
+                                       value="{{ p.price }}">
+
+                                <input name="original"
+                                       type="number"
+                                       step=".01"
+                                       value="{{ p.original or p.price }}">
+
+                                <input name="stock"
+                                       type="number"
+                                       value="{{ p.stock }}">
+
+                                <textarea name="description">{{ p.description }}</textarea>
+
+                                <label class="check">
+                                    <input type="checkbox"
+                                           name="featured"
+                                           {% if p.featured %}checked{% endif %}>
+                                    Featured
+                                </label>
+
+                                <button class="btn small">Save</button>
+                            </form>
+                        </details>
+
+                        <form class="inline"
+                              method="post"
+                              action="{{ url_for('delete_product', i=p.id) }}"
+                              onsubmit="return confirm('Archive this product?')">
+
+                            <button class="text danger">Archive</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}
+
